@@ -1,0 +1,45 @@
+image: docker:19.03.5
+services:
+  - docker:19.03.5-dind
+
+stages:
+  - Build
+  - Push
+
+before_script:
+  - apk add python3  
+  - pip3 install awscli==1.18.8
+  - docker load --input jenkins/image.tar
+  - $(aws ecr get-login --no-include-email --region us-east-1)
+
+Build:
+  stage: Build
+  before_script: []
+  script:
+    - mkdir jenkins
+    - docker build --compress -t jenkins/jenkins_centos .
+    - docker save --output jenkins/image.tar jenkins/jenkins_centos
+  artifacts:
+    name: image
+    paths:
+      - jenkins/
+
+Push Dev:
+  stage: Push
+  script:
+    - docker tag jenkins/jenkins_centos:latest $ECR_REPO:dev
+    - docker push $ECR_REPO:dev
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'main'"
+
+Push Release:
+  stage: Push
+  script:
+    - export TAGGED_ECR_REPO=$ECR_REPO:$(echo $CI_COMMIT_TAG | sed 's/-release//')
+    - docker tag jenkins/jenkins_centos:latest $TAGGED_ECR_REPO
+    - docker push $TAGGED_ECR_REPO 
+    - docker tag $TAGGED_ECR_REPO $ECR_REPO:latest
+    - docker push $ECR_REPO:latest
+  rules:
+    - if: "$CI_COMMIT_TAG =~ /^*-release$/"
+
