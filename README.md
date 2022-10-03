@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Official Jenkins Docker image
 
 [![Docker Stars](https://img.shields.io/docker/stars/jenkins/jenkins.svg)](https://hub.docker.com/r/jenkins/jenkins/)
@@ -294,3 +295,6 @@ If you wish to contribute fixes to this repository, please refer to the [dedicat
 ## Questions?
 
 We're on Gitter, https://gitter.im/jenkinsci/docker
+=======
+# jenkins-re
+>>>>>>> 546a1c6408eff5729617113f9b878892a2a7b2b2
